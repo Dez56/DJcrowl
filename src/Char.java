@@ -3,16 +3,17 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Char {
-    protected String name;  //nombre
-    protected int Hp;       //Vida
-    protected int MeS;      //Habilidad Melee, ahora general
-    protected int Res;      //Resistencia a impactos
-    protected int Arm;      //Armadura en caso de que tenga
-    protected int Fue;      //Fuerza del ataque
-    protected boolean tea;  //equipo 0 de aliados o 1 de enemigos
+    protected String name;  // nombre
+    protected int Hp;       // Vida
+    protected int MeS;      // Habilidad Melee (ahora general)
+    protected int Res;      // Resistencia a impactos
+    protected int Arm;      // Armadura
+    protected int Fue;      // Fuerza del ataque
+    protected boolean tea;  // Equipo (false = aliados, true = enemigos)
+    protected boolean typ; // funcionamiento, ignoren
 
     // Constructor
-    public Char(String name, int Hp, int MeS, int Res, int Arm, int Fue, boolean tea) {
+    public Char(String name, int Hp, int MeS, int Res, int Arm, int Fue, boolean tea, boolean typ) {
         this.name = name;
         this.Hp = Hp;
         this.MeS = MeS;
@@ -20,111 +21,161 @@ public class Char {
         this.Arm = Arm;
         this.Fue = Fue;
         this.tea = tea;
+        this.typ = typ;
     }
 
     public boolean ente(int rech, ArrayList<Char> perso) {
-        Scanner sc = new Scanner(System.in);
-
-        // Validación de opción
         if (rech < 1 || rech > 2) {
-            System.out.println("Inválido, vuelve a intentar meter otro comando");
+            frase(2);
+            System.out.println("ese comando no existe, solo ingresa 1 o 2");
             return false;
         }
 
         switch (rech) {
             case 1:
-                // Mostrar objetivos posibles
-                System.out.println("Selecciona a qué personaje atacar:");
-                for (int i = 0; i < perso.size(); i++) {
-                    Char c = perso.get(i);
-                    System.out.println("[" + i + "] " + c.name + " (Equipo " + c.tea + ", HP: " + c.Hp + ")");
-                }
+                Char seleoir = chooie(perso);
 
-                int sele = sc.nextInt();
+                if (seleoir == null) return false;
 
-                // Validar índice
-                if (sele < 0 || sele >= perso.size()) {
-                    System.out.println("Índice inválido.");
-                    return false;
-                }
-
-                // ¿Aliado o enemigo?
-                Char objetivo = perso.get(sele);
-                if (this.tea != objetivo.tea) {
-                    atacar(objetivo);
+                if (this.tea != seleoir.tea) {
+                    atacar(seleoir);
                     return true;
                 } else {
-                    System.out.println("Ese personaje es de tu equipo. Vuelve a seleccionar...");
+                    frase(1);
+                    System.out.println("ese personaje es de tu equipo, selecciona de nuevo");
                     return false;
                 }
 
             case 2:
-                System.out.println("Este personaje no cuenta con habilidad pasiva");
-                return false;
+                Char jooo = null;
+
+                if (!this.typ) { // si es un personaje que requiere objetivo
+                    jooo = chooie(perso);
+                }
+
+                if (jooo == null && !this.typ) return false;
+
+                return aco(jooo);
+
         }
 
         return false; // fallback
     }
 
-
     public void atacar(Char objetivo) {
         Random rand = new Random();
         int dad = rand.nextInt(6) + 1; // Dado de 6 caras
 
-        // impactara?
         if (dad >= MeS) {
             System.out.println(name + " impacta a " + objetivo.name + "!");
 
-            // tabla de datos con el otro metodo
-            int dad2 = rand.nextInt(6) + 1;
-            int result = calc(Fue, objetivo.Res);
-            if (dad2 >= result) {
-                System.out.println(name + " logra herir a " + objetivo.name + "!");
+            int covv = objetivo.armo(); // Armadura?
+            if (covv == 1) return;
 
-                // Aramdura?
+            int dano = Fue - (objetivo.Res / 2);
+            if (dano < 1) dano = 1;
 
-                int covv = objetivo.armo();
+            objetivo.Hp -= dano;
+            System.out.println(objetivo.name + " recibe " + dano + " de daño! HP restante: " + objetivo.Hp);
 
-                if (covv == 1){
-                    return;
-                }
-
-                // Aplicar daño
-
-                int dano = Fue - (objetivo.Res / 2);
-                if (dano < 1) dano = 1; // QUE ALMENOS HAGA 1 DE DAÑO
-                objetivo.Hp -= dano;
-                System.out.println(objetivo.name + " recibe " + dano + " de daño! HP restante: " + objetivo.Hp);
-
-            } else {
-                System.out.println(name + " no logró herir a " + objetivo.name + ".");
-            }
+            objetivo.tiend();
         } else {
             System.out.println(name + " falla el ataque contra " + objetivo.name + ".");
         }
     }
 
-    // Método para determinar el número mínimo que debe sacarse en el dado para herir
-    private int calc(int fuerza, int resistencia) {
-        if (fuerza >= resistencia * 2) return 2; //83%
-        if (fuerza > resistencia) return 3;      //66%
-        if (fuerza == resistencia) return 4;     //50%
-        if (fuerza * 2 <= resistencia) return 6; //16%
-        return 5;                                //33%
-    }
-
-    protected int armo (){
+    protected int armo() {
         Random rand = new Random();
         if (Arm != 0) {
-            int dad3 = rand.nextInt(4) + 1;  //25% de proteger
+            int dad3 = rand.nextInt(4) + 1;  // 25% de bloquear
             if (dad3 == 1) {
                 Arm--;
                 System.out.println(name + " bloqueó el daño con su armadura! (Quedan " + Arm + " usos)");
-                return 1; //si tienes suerte, ignora daño
+                return 1;
             }
-            return 0;
         }
         return 0;
+    }
+
+    // Habilidad activa
+    protected boolean aco(Char asa) {
+        System.out.println("Este personaje no tiene activa");
+        return false;
+    }
+
+    // Selector de objetivo reutilizable
+    protected Char chooie(ArrayList<Char> perso) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Selecciona un personaje: seleccionarObjetivo");
+
+        for (int i = 0; i < perso.size(); i++) {
+            Char c = perso.get(i);
+            System.out.println("[" + i + "] " + c.name + " (Equipo " + c.tea + ", HP: " + c.Hp + ")");
+        }
+
+        int sele = sc.nextInt();
+
+        if (sele < 0 || sele >= perso.size()) {
+            System.out.println("eso no existe.");
+            return null;
+        }
+
+        return perso.get(sele);
+    }
+
+    protected void frase(int sit) {
+        String[] frases;
+
+        switch (sit) {
+            case 1: //Mensaje fuego amigo
+                frases = new String[]{
+                        "¡Ey! ¿te pegaban de niño acaso?",
+                        "Ese es de los tuyos, genio.",
+                        "Nop",
+                        "¿Que tienes en mente?",
+                        "Tus neuronas pueden ser contadas con los dedos de un pingüino, y terminan sobrando",
+                        "fuiste amamantado con redbull apenas naceiste",
+                        "atencion de fuego amigo, selecciona a alguien más para atacar"
+                };
+                break;
+            case 2: //Comando erroneo
+                frases = new String[]{
+                        "¿Ocupas lentes para leer bien?",
+                        "Tipico error de dedo",
+                        "whoops he revisado en la libreria de alejandria y el comando que proporcionaste no aparece",
+                        "¿Estas prestando atencion almenos?"
+                };
+                break;
+            case 3: //Barbaro
+                frases = new String[]{
+                        "Me parece que no le ha gustado",
+                        "Y murio... pero se rehusó",
+                        "oh oh",
+                        "- Prepara el culo perra"
+                };
+                break;
+            default:
+                frases = new String[]{
+                        "tu no has visto nada"
+                };
+                break;
+        }
+
+        // Selecciona e imprime una frase al azar
+        Random rand = new Random();
+        System.out.println(frases[rand.nextInt(frases.length)]);
+    }
+
+    /*
+    * activas raras
+    * */
+
+    //Barbaro
+    public void tiend() {
+        if(true){
+            boolean huh = true;
+        }
     }
 
 }
