@@ -3,11 +3,11 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Char {
-    protected String name;  //nombre de unidad
+    protected String name;  //nombre
     protected int Hp;       //Vida
     protected int MeS;      //Habilidad Melee, ahora general
     protected int Res;      //Resistencia a impactos
-    protected int Arm;      //Armadura en caso de que la unidad tenga
+    protected int Arm;      //Armadura en caso de que tenga
     protected int Fue;      //Fuerza del ataque
     protected boolean tea;  //equipo 0 de aliados o 1 de enemigos
 
@@ -22,59 +22,50 @@ public class Char {
         this.tea = tea;
     }
 
-    public void ente(int rech, ArrayList<Char> perso){
+    public boolean ente(int rech, ArrayList<Char> perso) {
+        Scanner sc = new Scanner(System.in);
 
-        //validación
-
-        String entra;
-
-        if(rech > 0 && rech < 4){
-            entra = String.valueOf(rech);
-        }else{
-            System.out.println("Invalido, vuelve a intentar meter otro comando");
-            return;
+        // Validación de opción
+        if (rech < 1 || rech > 2) {
+            System.out.println("Inválido, vuelve a intentar meter otro comando");
+            return false;
         }
 
-        switch (entra) {
-            case "1":
-
-                //declaracion
-
-                System.out.println("seleccione a que personaje atacar");
-                Scanner sc = new Scanner(System.in);
-                int sele;
-                String conf;
-
-                //recoleccion
-
-                sele = sc.nextInt();
-
-                //valido el ataque?
-
-                if (tea != perso.get(sele).tea)
-                {
-                    atacar(perso.get(sele));
-                } else {
-                    System.out.println("Ese personaje es de tu equipo, seguro que quieres continuar?");
-                    System.out.println("S / N");
-                    conf = sc.next();
-                    conf = conf.toLowerCase();
-                    if(conf == "si" || conf == "s"){
-                        atacar(perso.get(sele));
-                    }else{
-                        System.out.println("bien, vuelve a seleccionar una acción");
-                        //ente()
-                    }
+        switch (rech) {
+            case 1:
+                // Mostrar objetivos posibles
+                System.out.println("Selecciona a qué personaje atacar:");
+                for (int i = 0; i < perso.size(); i++) {
+                    Char c = perso.get(i);
+                    System.out.println("[" + i + "] " + c.name + " (Equipo " + c.tea + ", HP: " + c.Hp + ")");
                 }
-            break;
-            case "2":
 
-            break;
-            case "3":
+                int sele = sc.nextInt();
 
-            break;
+                // Validar índice
+                if (sele < 0 || sele >= perso.size()) {
+                    System.out.println("Índice inválido.");
+                    return false;
+                }
+
+                // ¿Aliado o enemigo?
+                Char objetivo = perso.get(sele);
+                if (this.tea != objetivo.tea) {
+                    atacar(objetivo);
+                    return true;
+                } else {
+                    System.out.println("Ese personaje es de tu equipo. Vuelve a seleccionar...");
+                    return false;
+                }
+
+            case 2:
+                System.out.println("Este personaje no cuenta con habilidad pasiva");
+                return false;
         }
+
+        return false; // fallback
     }
+
 
     public void atacar(Char objetivo) {
         Random rand = new Random();
@@ -90,19 +81,21 @@ public class Char {
             if (dad2 >= result) {
                 System.out.println(name + " logra herir a " + objetivo.name + "!");
 
-                // Aramdura
-                if (objetivo.Arm != 0) {
-                    int dad3 = 1 ;//rand.nextInt(1) + 1;  25 de proteger
-                    if (dad3 == 1) {
-                        objetivo.Arm--;
-                        System.out.println(objetivo.name + " bloqueó el daño con su armadura! (Quedan " + objetivo.Arm + " usos)");
-                        return; //si tienes suerte, ignora daño
-                    }
+                // Aramdura?
+
+                int covv = objetivo.armo();
+
+                if (covv == 1){
+                    return;
                 }
 
                 // Aplicar daño
-                objetivo.Hp--;
-                System.out.println(objetivo.name + " recibe daño! HP restante: " + objetivo.Hp);
+
+                int dano = Fue - (objetivo.Res / 2);
+                if (dano < 1) dano = 1; // QUE ALMENOS HAGA 1 DE DAÑO
+                objetivo.Hp -= dano;
+                System.out.println(objetivo.name + " recibe " + dano + " de daño! HP restante: " + objetivo.Hp);
+
             } else {
                 System.out.println(name + " no logró herir a " + objetivo.name + ".");
             }
@@ -113,11 +106,25 @@ public class Char {
 
     // Método para determinar el número mínimo que debe sacarse en el dado para herir
     private int calc(int fuerza, int resistencia) {
-        if (fuerza >= resistencia * 2) return 2; //83
-        if (fuerza > resistencia) return 3;      //66
-        if (fuerza == resistencia) return 4;     //50
-        if (fuerza * 2 <= resistencia) return 6; //16
-        return 5;                                //33
+        if (fuerza >= resistencia * 2) return 2; //83%
+        if (fuerza > resistencia) return 3;      //66%
+        if (fuerza == resistencia) return 4;     //50%
+        if (fuerza * 2 <= resistencia) return 6; //16%
+        return 5;                                //33%
+    }
+
+    protected int armo (){
+        Random rand = new Random();
+        if (Arm != 0) {
+            int dad3 = rand.nextInt(4) + 1;  //25% de proteger
+            if (dad3 == 1) {
+                Arm--;
+                System.out.println(name + " bloqueó el daño con su armadura! (Quedan " + Arm + " usos)");
+                return 1; //si tienes suerte, ignora daño
+            }
+            return 0;
+        }
+        return 0;
     }
 
 }
