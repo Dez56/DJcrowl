@@ -1,24 +1,34 @@
 import java.util.Random;
 
 public class Barbaro extends Char{
+
+    int rev = 1;
+
     public Barbaro(String name, boolean tea) {
         super(name, 5, 3, 1, 0, 3, tea, false);
     }
 
     @Override
     protected boolean aco(Char objetivo) {
+        if (cooldown > 0) {
+            System.out.println(name + " aún no puede usar su habilidad. Cooldown restante: " + cooldown);
+            return false;
+        }
+
+        cooldown = MAX_COOLDOWN;
+
         if (this.tea == objetivo.tea) {
             frase(1);
             System.out.println("Ese personaje es de tu equipo, selecciona de nuevo.");
             return false;
         }
 
-        // Ignora armadura y penetración, solo verifica impacto
+        // Ignora armadura
         Random rand = new Random();
         int dado = rand.nextInt(6) + 1;
 
         if (dado >= MeS) {
-            System.out.println(name + " impacta con un golpe brutal a " + objetivo.name + "!");
+            System.out.println(name + " impacta con un barbaro golpe a " + objetivo.name + "!");
 
             int dano = Fue - (objetivo.Res / 2);
             if (dano < 1) dano = 1;
@@ -33,10 +43,16 @@ public class Barbaro extends Char{
         return true;
     }
 
+
     @Override
     public void tiend() {
+        if(rev < 0){
+            return;
+        }
         if (this.Hp <= 0) {
             this.Hp = 1;
+            this.MeS++;
+            this.Fue++;
             frase(3);
             System.out.println("El barbaro ha enfurecido, y da el ultimo haz de vida en su cuerpo para una ultima barbarie");
         }

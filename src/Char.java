@@ -12,6 +12,9 @@ public class Char {
     protected boolean tea;  // Equipo (false = aliados, true = enemigos)
     protected boolean typ; // funcionamiento, ignoren
 
+    protected int cooldown = 0;
+    protected final int MAX_COOLDOWN = 2;
+
     // Constructor
     public Char(String name, int Hp, int MeS, int Res, int Arm, int Fue, boolean tea, boolean typ) {
         this.name = name;
@@ -62,6 +65,10 @@ public class Char {
         return false; // fallback
     }
 
+    public void tick() {
+        if (cooldown > 0) cooldown--;
+    }
+
     public void atacar(Char objetivo) {
         Random rand = new Random();
         int dad = rand.nextInt(6) + 1; // Dado de 6 caras
@@ -84,7 +91,7 @@ public class Char {
         }
     }
 
-    protected int armo() {
+        protected int armo() {
         Random rand = new Random();
         if (Arm != 0) {
             int dad3 = rand.nextInt(4) + 1;  // 25% de bloquear
@@ -125,10 +132,11 @@ public class Char {
     }
 
     protected void frase(int sit) {
+
         String[] frases;
 
         switch (sit) {
-            case 1: //Mensaje fuego amigo
+            case 1-> //Mensaje fuego amigo
                 frases = new String[]{
                         "¡Ey! ¿te pegaban de niño acaso?",
                         "Ese es de los tuyos, genio.",
@@ -138,28 +146,43 @@ public class Char {
                         "fuiste amamantado con redbull apenas naceiste",
                         "atencion de fuego amigo, selecciona a alguien más para atacar"
                 };
-                break;
-            case 2: //Comando erroneo
+            case 2-> //Comando erroneo
                 frases = new String[]{
                         "¿Ocupas lentes para leer bien?",
                         "Tipico error de dedo",
                         "whoops he revisado en la libreria de alejandria y el comando que proporcionaste no aparece",
                         "¿Estas prestando atencion almenos?"
                 };
-                break;
-            case 3: //Barbaro
+            case 3-> //Barbaro
                 frases = new String[]{
                         "Me parece que no le ha gustado",
                         "Y murio... pero se rehusó",
                         "oh oh",
                         "- Prepara el culo perra"
                 };
-                break;
-            default:
+            case 4-> //Caballero
+                    frases = new String[]{
+                            "Esa armadura sigue como siempre brillante",
+                            "Ni un solo rasguño",
+                            "Le pegaste con fuerza ¿no?",
+                            "- Diria que pegas como una damisela, pero creo que les estaria faltando el respeto a las damas"
+                    };
+            case 5-> //Undead
+                    frases = new String[]{
+                            "La noche de los no muertos",
+                            "¿Eso rimara con Grog?",
+                            "- GRahhh!"
+                    };
+            case 6-> //Undead fucking dies
+                    frases = new String[]{
+                            "Vaya que muerden rapido el polvo",
+                            "Definitivamente rimaba con grog",
+                            "Que asco quitenlo de mi vista"
+                    };
+            default->
                 frases = new String[]{
                         "tu no has visto nada"
                 };
-                break;
         }
 
         // Selecciona e imprime una frase al azar
@@ -173,9 +196,7 @@ public class Char {
 
     //Barbaro
     public void tiend() {
-        if(true){
-            boolean huh = true;
-        }
-    }
 
+    }
 }
+
