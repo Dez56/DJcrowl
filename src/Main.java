@@ -1,7 +1,5 @@
 public class Main {
     public static void main(String[] args) {
-        Game juego = new Game();
-        juego.start();
-
+        Launcher.main(args); // Arranca la interfaz
     }
 }

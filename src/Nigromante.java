@@ -13,24 +13,24 @@ public class Nigromante extends Char {
         super.atacar(objetivo);
         if (objetivo.Hp <= 0 && !muertos.contains(objetivo)) {
             muertos.add(objetivo);
-            System.out.println(objetivo.name + " ha sido marcado para resurrección.");
+            Output.println(objetivo.name + " ha sido marcado para resurrección.");
         }
     }
 
     @Override
     protected boolean aco(Char objetivo) {
         if (cooldown > 0) {
-            System.out.println(name + " aún no puede usar su habilidad. Cooldown restante: " + cooldown);
+            Output.println(name + " aún no puede usar su habilidad. Cooldown restante: " + cooldown);
             return false;
         }
 
         if (!muertos.contains(objetivo) || objetivo.Hp > 0) {
-            System.out.println("Ese objetivo no está marcado para revivir.");
+            Output.println("Ese objetivo no está marcado para revivir.");
             return false;
         }
 
         cooldown = MAX_COOLDOWN;
-        System.out.println(name + " revive a " + objetivo.name + " como no-muerto de su equipo!");
+        Output.println(name + " revive a " + objetivo.name + " como no-muerto de su equipo!");
         objetivo = new NoMuerto("Zombie de " + objetivo.name, this.tea);
         return true;
     }

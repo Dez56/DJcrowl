@@ -11,7 +11,7 @@ public class Barbaro extends Char{
     @Override
     protected boolean aco(Char objetivo) {
         if (cooldown > 0) {
-            System.out.println(name + " aún no puede usar su habilidad. Cooldown restante: " + cooldown);
+            Output.println(name + " aún no puede usar su habilidad. Cooldown restante: " + cooldown);
             return false;
         }
 
@@ -19,7 +19,7 @@ public class Barbaro extends Char{
 
         if (this.tea == objetivo.tea) {
             frase(1);
-            System.out.println("Ese personaje es de tu equipo, selecciona de nuevo.");
+            Output.println("Ese personaje es de tu equipo, selecciona de nuevo.");
             return false;
         }
 
@@ -28,16 +28,16 @@ public class Barbaro extends Char{
         int dado = rand.nextInt(6) + 1;
 
         if (dado >= MeS) {
-            System.out.println(name + " impacta con un barbaro golpe a " + objetivo.name + "!");
+            Output.println(name + " impacta con un barbaro golpe a " + objetivo.name + "!");
 
             int dano = Fue - (objetivo.Res / 2);
             if (dano < 1) dano = 1;
 
             objetivo.Hp -= dano;
-            System.out.println(objetivo.name + " recibe " + dano + " de daño! HP restante: " + objetivo.Hp);
+            Output.println(objetivo.name + " recibe " + dano + " de daño! HP restante: " + objetivo.Hp);
             objetivo.tiend();
         } else {
-            System.out.println(name + " falla el ataque especial contra " + objetivo.name + ".");
+            Output.println(name + " falla el ataque especial contra " + objetivo.name + ".");
         }
 
         return true;
@@ -54,7 +54,7 @@ public class Barbaro extends Char{
             this.MeS++;
             this.Fue++;
             frase(3);
-            System.out.println("El barbaro ha enfurecido, y da el ultimo haz de vida en su cuerpo para una ultima barbarie");
+            Output.println("El barbaro ha enfurecido, y da el ultimo haz de vida en su cuerpo para una ultima barbarie");
         }
     }
 }
